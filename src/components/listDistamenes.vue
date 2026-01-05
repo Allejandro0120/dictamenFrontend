@@ -318,7 +318,6 @@
                                                     v-model="fecha_expedicion" 
                                                     outlined 
                                                     rounded 
-                                                    readonly 
                                                     dense 
                                                     hide-details 
                                                 >
@@ -1748,8 +1747,8 @@ export default {
             tiposConstruccion: [],
             tipo_construccion: null,
             localizacion: '',
-            tension: '',
-            capacidad: '',
+            tension: null,
+            capacidad: null,
             zonas: [],
             zona: null,
             servicios: [],
@@ -1758,11 +1757,11 @@ export default {
             uso: null,
             tiposConfig: [],
             tipoConfiguracion: null,
-            longitud: '',
+            longitud: null,
             tipoConductores: '',
             materialEstructuras: '',
             nroEstructurasApoyo: '',
-            nro_transformadores: '',
+            nro_transformadores: null,
             tiposProcesoAsoc: [],
             tiposSubestacion: [],
             tiposInstalacion: [],
@@ -2262,17 +2261,17 @@ export default {
             //Step 4
             this.tipo_construccion = null
             this.localizacion = '',
-            this.tension = '',
-            this.capacidad = '',
+            this.tension = null,
+            this.capacidad = null,
             this.zona = null,
             this.servicio = null,
             this.uso = null,
             this.tipoConfiguracion = null,
-            this.longitud = '',
+            this.longitud = null,
             this.tipoConductores = '',
             this.materialEstructuras = '',
             this.nroEstructurasApoyo = '',
-            this.nro_transformadores = '',
+            this.nro_transformadores = null,
             this.tipo_proceso_asoc = null,
             this.tipo_subestacion = null,
             this.tipo_instalacion = null,
@@ -2389,10 +2388,6 @@ export default {
                 }
                 if (!this.direccion) {
                     snackbarService.show('Por favor, ingrese la dirección.', 'error')
-                    return false
-                }
-                if (!this.barrio) {
-                    snackbarService.show('Por favor, ingrese el barrio.', 'error')
                     return false
                 }
             } else if (this.stepMove === 4) {
