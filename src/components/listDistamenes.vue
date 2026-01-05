@@ -112,7 +112,7 @@
                                                 <v-icon>mdi-file-pdf-box</v-icon>
                                             </v-list-item-icon>
                                             <v-list-item-content>
-                                                <v-list-item-title>Prestador</v-list-item-title>
+                                                <v-list-item-title>Operador de Red</v-list-item-title>
                                             </v-list-item-content>
                                         </v-list-item>
                                     </v-list>
@@ -193,6 +193,7 @@
 
                                 <v-stepper-step
                                     step=6
+                                    editable
                                 >
                                     Evaluación
                                 </v-stepper-step>
@@ -1866,6 +1867,7 @@ export default {
             this.FechaInicio = fecha.toISOString().substring(0, 10)
         },
         async openDetail(modo) {
+            this.modo = modo
             try {
                 loadingService.show('Cargando dictamen...')
 
@@ -2033,7 +2035,7 @@ export default {
                 const evaluaciones = await dictamenService.getEvaluaciones()
                 this.evaluaciones = evaluaciones.map(item => ({
                     ...item,
-                    aplica: false,
+                    aplica: null,
                     parametroMedido: '',
                     parametroReferencia: '',
                     cumple: null
@@ -2615,20 +2617,18 @@ export default {
             this.matrProf_insp = this.dictamenDetail.parteH.matrProf_insp
         },
         async openDetailShow(item) {
-            this.modo = 1
             let dictamenId = item ? item.id : null
             this.selectedDictamen = dictamenId
             await this.getDictamenById(item.id)
             this.asignaVariablesDetailShow()
-            this.openDetail(this.modo)
+            this.openDetail(1)
         },
         async openDetailEdit(item) {
-            this.modo = 2
             let dictamenId = item ? item.id : null
             this.selectedDictamen = dictamenId
             await this.getDictamenById(item.id)
             this.asignaVariablesDetailShow()
-            this.openDetail(this.modo)
+            this.openDetail(2)
         },
         asignarProfesionalesDetailShow() {
             this.dictamenDetail.parteD.map(prof => {

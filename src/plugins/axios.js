@@ -22,18 +22,47 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
     response => response,
-    error => {
-        const status = error.response?.status
-        const isAuthError = status === 401 || status === 403
-        const isLoginRoute = window.location.pathname.includes('/login')
+    async error => {
+        const originalRequest = error.config;
 
-        if (isAuthError && !isLoginRoute) {
-            localStorage.removeItem('token')
-            window.location.href = '/login'
+        if (
+            error.response &&
+            error.response.status === 401 &&
+            error.response.data?.code === 'TOKEN_EXPIRED' &&
+            !originalRequest._retry
+        ) {
+            originalRequest._retry = true;
+
+            try {
+                const refreshToken = localStorage.getItem('refreshToken');
+
+                if (!refreshToken) {
+                    throw new Error('No refresh token');
+                }
+
+                const response = await axios.post(
+                    `${process.env.VUE_APP_API_URL}/users/refresh-token`,
+                    { refreshToken }
+                );
+
+                const newAccessToken = response.data.accessToken;
+
+                localStorage.setItem('token', newAccessToken);
+
+                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+                return api(originalRequest);
+
+            } catch (refreshError) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('refreshToken');
+                window.location.href = '/login';
+            }
         }
 
-        return Promise.reject(error)
+        return Promise.reject(error);
     }
-)
+);
+
 
 export default api

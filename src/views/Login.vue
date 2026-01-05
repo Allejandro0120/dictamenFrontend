@@ -103,6 +103,7 @@
                 })
                 if (data.token) {
                     localStorage.setItem('token', data.token)
+                    localStorage.setItem('refreshToken', data.refreshToken)
                     localStorage.setItem('user', JSON.stringify(data.usuario))
                     localStorage.setItem('roles', JSON.stringify(data.roles))
                     this.$router.push('/')
