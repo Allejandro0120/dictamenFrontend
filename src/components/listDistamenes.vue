@@ -294,9 +294,7 @@
                                         <!-- Fields -->
                                         <v-row dense>
                                             <v-col
-                                                cols="12"
-                                                sm="6"
-                                                md="3"
+                                                cols="2"
                                             >
                                                 <div class="text-caption font-weight-medium mb-1">
                                                     Número de Dictamen
@@ -312,9 +310,7 @@
                                             </v-col>
 
                                             <v-col
-                                                cols="12"
-                                                sm="6"
-                                                md="3"
+                                                cols="2"
                                             >
                                                 <div class="text-caption font-weight-medium mb-1">
                                                     Fecha de Expedición
@@ -331,9 +327,7 @@
                                             </v-col>
 
                                             <v-col
-                                                cols="12"
-                                                sm="6"
-                                                md="3"
+                                                cols="2"
                                             >
                                                 <div class="text-caption font-weight-medium mb-1">
                                                     Fecha de Inspección
@@ -348,15 +342,28 @@
                                             </v-col>
 
                                             <v-col
-                                                cols="12"
-                                                sm="6"
-                                                md="3"
+                                                cols="3"
                                             >
                                                 <div class="text-caption font-weight-medium mb-1">
                                                     Código de Expediente
                                                 </div>
                                                 <v-text-field
                                                     v-model="codigo_expediente"
+                                                    placeholder="OCC-I-XXXX-XX"
+                                                    outlined
+                                                    dense
+                                                    hide-details
+                                                />
+                                            </v-col>
+                                            
+                                            <v-col
+                                                cols="3"
+                                            >
+                                                <div class="text-caption font-weight-medium mb-1">
+                                                    Código de Verificacion
+                                                </div>
+                                                <v-text-field
+                                                    v-model="codVerif"
                                                     placeholder="OCC-I-XXXX-XX"
                                                     outlined
                                                     dense
@@ -1386,19 +1393,19 @@
                                             <v-row dense>
                                                 <v-col cols="12">
                                                     <div class="text-caption font-weight-medium mb-1">
-                                                        Observaciones
+                                                        Observaciones, modificaciones y advertencias especiales
                                                     </div>
                                                     <v-textarea
                                                         v-model="observaciones"
                                                         outlined
                                                         dense
-                                                        rows="3"
+                                                        rows="6"
                                                         maxlength="255"
                                                         hide-details
                                                     />
                                                 </v-col>
                                             </v-row>
-                                            <v-row dense>
+                                            <!-- <v-row dense>
                                                 <v-col cols="12">
                                                     <div class="text-caption font-weight-medium mb-1">
                                                         Modificaciones
@@ -1427,7 +1434,7 @@
                                                         hide-details
                                                     />
                                                 </v-col>
-                                            </v-row>
+                                            </v-row> -->
                                             <v-row dense>
                                                 <v-col cols="12">
                                                     <div class="text-caption font-weight-medium mb-1">
@@ -1728,6 +1735,7 @@ export default {
             fecha_inspeccion: '',
             menu3: false,
             codigo_expediente: '',
+            codVerif: '',
             //Step 3
             propietario_instalacion: '',
             nro_documento: '',
@@ -2085,6 +2093,7 @@ export default {
                     fechaExpedicion: this.fecha_expedicion,
                     fechaInspeccion: this.fecha_inspeccion,
                     codExpediente: this.codigo_expediente,
+                    codVerif: this.codVerif,
                     nroDictamen: this.numero_dictamen,
                     datosGenerales: {
                         docProp: this.nro_documento,
@@ -2164,6 +2173,7 @@ export default {
                     fechaExpedicion: this.fecha_expedicion,
                     fechaInspeccion: this.fecha_inspeccion,
                     codExpediente: this.codigo_expediente,
+                    codVerif: this.codVerif,
                     nroDictamen: this.numero_dictamen,
                     datosGenerales: {
                         docProp: this.nro_documento,
@@ -2242,6 +2252,7 @@ export default {
             this.numero_dictamen = '',
             this.fecha_inspeccion = '',
             this.codigo_expediente = '',
+            this.codVerif = '',
             //Step 3
             this.propietario_instalacion = '',
             this.nro_documento = '',
@@ -2562,6 +2573,7 @@ export default {
             this.fecha_expedicion = this.dictamenDetail.dictamen.fechaExpedicion
             this.fecha_inspeccion = this.dictamenDetail.dictamen.fechaInspeccion
             this.codigo_expediente = this.dictamenDetail.dictamen.codExpediente
+            this.codVerif = this.dictamenDetail.dictamen.codVerif
             //Datos Generales
             this.nro_documento = this.dictamenDetail.dictamen.datosGenerales.docProp
             this.propietario_instalacion = this.dictamenDetail.dictamen.datosGenerales.nombreProp
