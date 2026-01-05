@@ -193,7 +193,6 @@
 
                                 <v-stepper-step
                                     step=6
-                                    editable
                                 >
                                     Evaluación
                                 </v-stepper-step>
