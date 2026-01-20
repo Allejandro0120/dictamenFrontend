@@ -41,8 +41,8 @@ const getTiposConfig = async () => {
     return data
 }
 
-const getEvaluaciones = async () => {
-    const { data } = await api.get('/dictamenes/evaluaciones')
+const getEvaluaciones = async (params) => {
+    const { data } = await api.get('/dictamenes/evaluaciones', { params })
     return data
 }
 
@@ -51,8 +51,18 @@ const getNroDictamen = async () => {
     return data
 }
 
+const getNroHojaDictamen = async () => {
+    const { data } = await api.get('/dictamenes/nroHojaDictamen')
+    return data
+}
+
 const updateNroDictamen = async (payload) => {
     const { data } = await api.put('/dictamenes/nroDictamen', payload)
+    return data
+}
+
+const updateNroHojaDictamen = async (payload) => {
+    const { data } = await api.put('/dictamenes/nroHojaDictamen', payload)
     return data
 }
 
@@ -101,7 +111,9 @@ export default {
     getTiposUsoFinal,
     getEvaluaciones,
     getNroDictamen,
+    getNroHojaDictamen,
     updateNroDictamen,
+    updateNroHojaDictamen,
     getDictamenById,
     updateDictamen
 }

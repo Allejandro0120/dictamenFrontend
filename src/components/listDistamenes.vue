@@ -129,7 +129,7 @@
         >
             <v-dialog
                 v-model="openDetailDialog"
-                max-width="1300"
+                max-width="1400"
                 scrollable
                 persistent
             >
@@ -221,7 +221,7 @@
                                         </v-card-title>
                                         <v-card-text>
                                             <v-row>
-                                                <v-col v-for="tipo in tiposDictamen" :key="tipo.id" cols="4">
+                                                <v-col v-for="tipo in tiposDictamen" :key="tipo.id" cols="3">
                                                     <v-card
                                                         elevation="4"
                                                         rounded="3"
@@ -362,7 +362,7 @@
                                                 </div>
                                                 <v-text-field
                                                     v-model="codVerif"
-                                                    placeholder="OCC-I-XXXX-XX"
+                                                    placeholder="12345"
                                                     outlined
                                                     dense
                                                     hide-details
@@ -524,7 +524,6 @@
                                                     Nro de Documento
                                                 </div>
                                                 <v-text-field
-                                                    type="number"
                                                     v-model="nro_documento"
                                                     placeholder="123456789"
                                                     outlined
@@ -700,6 +699,90 @@
                                                     item-text="nombre"
                                                     item-value="id"
                                                     placeholder="Seleccione un servicio"
+                                                    outlined
+                                                    dense
+                                                    hide-details
+                                                />
+                                            </v-col>
+                                        </v-row>
+                                        <v-row dense v-if="selectedTipo === 4">
+                                            <v-col cols="6">
+                                                <div class="text-caption font-weight-medium mb-1">
+                                                    Zona
+                                                </div>
+                                                <v-autocomplete
+                                                    v-model="zona"
+                                                    :items="zonas"
+                                                    item-text="nombre"
+                                                    item-value="id"
+                                                    placeholder="Seleccione una zona"
+                                                    outlined
+                                                    dense
+                                                    hide-details
+                                                />
+                                            </v-col>
+                                            <v-col cols="6">
+                                                <div class="text-caption font-weight-medium mb-1">
+                                                    Tipo de Generación
+                                                </div>
+                                                <v-autocomplete
+                                                    v-model="tipoGeneracion"
+                                                    :items="tiposGeneracion"
+                                                    item-text="nombre"
+                                                    item-value="id"
+                                                    placeholder="Seleccione un tipo de generación"
+                                                    outlined
+                                                    dense
+                                                    hide-details
+                                                />
+                                            </v-col>
+                                        </v-row>
+                                        <v-row dense v-if="selectedTipo === 4">
+                                            <v-col cols="6">
+                                                <div class="text-caption font-weight-medium mb-1">
+                                                    Uso
+                                                </div>
+                                                <v-autocomplete
+                                                    v-model="usoGeneracion"
+                                                    :items="usosGeneracion"
+                                                    item-text="nombre"
+                                                    item-value="id"
+                                                    placeholder="Seleccione un uso"
+                                                    outlined
+                                                    dense
+                                                    hide-details
+                                                />
+                                            </v-col>
+                                            <v-col cols="6">
+                                                <div class="text-caption font-weight-medium mb-1">
+                                                    Fuente(s) de Generación
+                                                </div>
+                                                <v-text-field
+                                                    v-model="fuentesGeneracion"
+                                                    outlined
+                                                    dense
+                                                    hide-details
+                                                />
+                                            </v-col>
+                                        </v-row>
+                                        <v-row dense v-if="selectedTipo === 4">
+                                            <v-col cols="6">
+                                                <div class="text-caption font-weight-medium mb-1">
+                                                    Cap. Instalada (kVA o kW)
+                                                </div>
+                                                <v-text-field
+                                                    v-model="capacidadInstalada"
+                                                    outlined
+                                                    dense
+                                                    hide-details
+                                                />
+                                            </v-col>
+                                            <v-col cols="6">
+                                                <div class="text-caption font-weight-medium mb-1">
+                                                    Tensión (kV)
+                                                </div>
+                                                <v-text-field
+                                                    v-model="tension"
                                                     outlined
                                                     dense
                                                     hide-details
@@ -1260,7 +1343,7 @@
                                                         <v-expansion-panel-content>
                                                             <v-card
                                                                 v-for="item in items"
-                                                                :key="item.id"
+                                                                :key="item.nro"
                                                                 class="mb-4 pa-3"
                                                                 outlined
                                                             >
@@ -1728,6 +1811,7 @@ export default {
             tiposDictamen: [],
             //Step 2
             numero_dictamen: '',
+            numero_hoja_dictamen: '',
             fecha_expedicion: '',
             menu2: false,
             fecha_inspeccion: '',
@@ -1773,6 +1857,19 @@ export default {
             subtipoInstalacion: '',
             fases: [1,2,3],
             selectedFase: null,
+            tiposGeneracion: [
+                { id: 1, nombre: 'Centrales de Generación' },
+                { id: 2, nombre: 'Generación Distribuida' },
+                { id: 3, nombre: 'Autogeneración a Pequeña Escala (AGPE)' }
+            ],
+            tipoGeneracion: null,
+            usosGeneracion: [
+                { id: 1, nombre: 'General' },
+                { id: 2, nombre: 'Asociado a uso final' }
+            ],
+            usoGeneracion: null,
+            fuentesGeneracion: null,
+            capacidadInstalada: null,
             //Step 5
             arrayDisenador: [
                 {
@@ -1898,7 +1995,7 @@ export default {
 
                     requests.push(
                         this.getNroDictamen(),
-                        this.getEvaluaciones()
+                        this.getNrohojaDictamen(),
                     )
                 }
 
@@ -1919,6 +2016,7 @@ export default {
         selectTipo(tipoId, nombreTipo) {
             this.selectedTipo = tipoId
             this.selectedTipoNombre = nombreTipo
+            if (this.modo === 3) { this.getEvaluaciones(tipoId) }
         },
         selectResult(resultadoValue, resultadoId) {
             this.selectedResultadoValue = resultadoValue
@@ -2036,17 +2134,14 @@ export default {
                 throw error
             }
         },
-        async getEvaluaciones() {
+        async getEvaluaciones(tipoId) {
             try {
-                const evaluaciones = await dictamenService.getEvaluaciones()
+                const evaluaciones = await dictamenService.getEvaluaciones({ tipo: tipoId })
                 this.evaluaciones = evaluaciones.map(item => ({
                     ...item,
-                    aplica: null,
-                    parametroMedido: '',
-                    parametroReferencia: '',
-                    cumple: null
+                    parametroReferencia: item.parametroRef,
                 }))
-                return this.evaluaciones
+                return evaluaciones
             } catch (error) {
                 console.error('Error fetching evaluaciones:', error)
                 throw error
@@ -2059,6 +2154,16 @@ export default {
                 return nroDictamen
             } catch (error) {
                 console.error('Error fetching número de dictamen:', error)
+                throw error
+            }
+        },
+        async getNrohojaDictamen() {
+            try {
+                const nroHojaDictamen = await dictamenService.getNroHojaDictamen()
+                this.numero_hoja_dictamen = nroHojaDictamen.nroHojaDictamen
+                return nroHojaDictamen
+            } catch (error) {
+                console.error('Error fetching número de hoja de dictamen:', error)
                 throw error
             }
         },
@@ -2093,6 +2198,7 @@ export default {
                     codExpediente: this.codigo_expediente,
                     codVerif: this.codVerif,
                     nroDictamen: this.numero_dictamen,
+                    nroHojaDictamen: this.numero_hoja_dictamen,
                     datosGenerales: {
                         docProp: this.nro_documento,
                         nombreProp: this.propietario_instalacion,
@@ -2120,7 +2226,11 @@ export default {
                         nroTransformadores: this.nro_transformadores,
                         tipoUsoFinal: this.tipo_uso_final,
                         subtipoInstalacion: this.subtipoInstalacion,
-                        fases: this.selectedFase
+                        fases: this.selectedFase,
+                        tipoGeneracion: this.tipoGeneracion,
+                        usoGeneracion: this.usoGeneracion,
+                        fuentesGeneracion: this.fuentesGeneracion,
+                        capacidadInstalada: this.capacidadInstalada,
                     },
                     dictamenParteD: {
                         arrayDisenador: this.arrayDisenador,
@@ -2158,6 +2268,7 @@ export default {
             } finally {
                 loadingService.hide()
                 this.updateNroDictamen(this.numero_dictamen)
+                this.updateNroHojaDictamen(this.numero_hoja_dictamen)
                 this.cleanUpCampos()
                 this.closeDetail()
                 this.getDictamenes()
@@ -2173,6 +2284,7 @@ export default {
                     codExpediente: this.codigo_expediente,
                     codVerif: this.codVerif,
                     nroDictamen: this.numero_dictamen,
+                    nroHojaDictamen: this.numero_hoja_dictamen,
                     datosGenerales: {
                         docProp: this.nro_documento,
                         nombreProp: this.propietario_instalacion,
@@ -2200,7 +2312,11 @@ export default {
                         nroTransformadores: this.nro_transformadores,
                         tipoUsoFinal: this.tipo_uso_final,
                         subtipoInstalacion: this.subtipoInstalacion,
-                        fases: this.selectedFase
+                        fases: this.selectedFase,
+                        tipoGeneracion: this.tipoGeneracion,
+                        usoGeneracion: this.usoGeneracion,
+                        fuentesGeneracion: this.fuentesGeneracion,
+                        capacidadInstalada: this.capacidadInstalada
                     },
                     dictamenParteD: {
                         arrayDisenador: this.arrayDisenador,
@@ -2248,6 +2364,7 @@ export default {
             this.modo = 1,
             //Step 2
             this.numero_dictamen = '',
+            this.numero_hoja_dictamen = '',
             this.fecha_inspeccion = '',
             this.codigo_expediente = '',
             this.codVerif = '',
@@ -2278,6 +2395,10 @@ export default {
             this.tipo_uso_final = null,
             this.subtipoInstalacion = '',
             this.selectedFase = null,
+            this.tipoGeneracion = null,
+            this.usoGeneracion = null,
+            this.fuentesGeneracion = null,
+            this.capacidadInstalada = null,
             //Step 5
             this.arrayDisenador = [
                 {
@@ -2338,8 +2459,8 @@ export default {
         },
         onAplicaChange(item) {
             if (item.aplica === false) {
-                item.parametroMedido = 'NA'
-                item.parametroReferencia = 'NA'
+                item.parametroMedido = 'N/A'
+                item.parametroReferencia = 'N/A'
                 item.cumple = null
             } else {
                 item.parametroMedido = ''
@@ -2549,6 +2670,19 @@ export default {
                 loadingService.hide()
             }
         },
+        async updateNroHojaDictamen(numeroHojaDictamen) {
+            try {
+                loadingService.show('Actualizando número de dictamen...')
+                const id = numeroHojaDictamen
+                await dictamenService.updateNroHojaDictamen({
+                    nroHoja: id
+                })
+            } catch (error) {
+                console.error('Error updating número de dictamen:', error)
+            } finally {
+                loadingService.hide()
+            }
+        },
         async getDictamenById(dictamenId) {
             try {
                 loadingService.show('Cargando dictamen...')
@@ -2568,6 +2702,7 @@ export default {
             this.fecha_inspeccion = this.dictamenDetail.dictamen.fechaInspeccion
             this.codigo_expediente = this.dictamenDetail.dictamen.codExpediente
             this.codVerif = this.dictamenDetail.dictamen.codVerif
+            this.numero_hoja_dictamen = this.dictamenDetail.dictamen.nroHojaDictamen
             //Datos Generales
             this.nro_documento = this.dictamenDetail.dictamen.datosGenerales.docProp
             this.propietario_instalacion = this.dictamenDetail.dictamen.datosGenerales.nombreProp
