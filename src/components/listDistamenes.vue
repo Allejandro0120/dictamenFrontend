@@ -117,6 +117,9 @@
                                         </v-list-item>
                                     </v-list>
                                 </v-menu>
+                                <v-btn v-if="permisoCreacion" icon color="primary" @click="openDetailDuplicar(item)">
+                                    <v-icon>mdi-folder-multiple-plus</v-icon>
+                                </v-btn>
                             </template>
                         </v-data-table>
                     </v-card-text>
@@ -1767,6 +1770,45 @@
             </v-dialog>
 
         </v-dialog>
+        <v-dialog
+            v-model="detailDuplicar"
+            max-width="600px"
+        >
+            <v-card
+                outlined
+                class="dictamen-card"
+                max-width="600"
+            >
+                <v-card-title class="text-h6 font-weight-bold">
+                    Duplicar Dictamen
+                </v-card-title>
+
+                <v-card-text>
+                    <div>¿Está seguro que desea duplicar el dictamen seleccionado?</div>
+                </v-card-text>
+
+                <v-divider />
+
+                <v-card-actions class="pa-4">
+                    <v-spacer />
+
+                    <v-btn
+                        variant="text"
+                        @click="closeDetailDuplicar()"
+                    >
+                        Cancelar
+                    </v-btn>
+
+                    <v-btn
+                        color="primary"
+                        variant="elevated"
+                        @click="DuplicateDictamen()"
+                    >
+                        Confirmar
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-container>
 </template>
 
@@ -1801,6 +1843,7 @@ export default {
             nroDictamenFind: '',
             menu: false,
             openDetailDialog: false,
+            detailDuplicar: false,
             selectedDictamen: null,
             loadingPDF: false,
             // Detail Dictamen
@@ -1934,7 +1977,8 @@ export default {
 
             //Data Detail Show and Edit
             dictamenDetail: {},
-            modo: 1 //1: Show, 2: Edit
+            modo: 1, //1: Show, 2: Edit
+            dictamenToDuplicate: {}
         }
     },
     mounted() {
@@ -2009,9 +2053,31 @@ export default {
                 loadingService.hide()
             }
         },
+        async openDetailDuplicar(item) {
+            try {
+                loadingService.show('Cargando dictamen...')
+                const dictamenDuplicado = await dictamenService.getDictamenById(item.id)
+                this.dictamenToDuplicate = dictamenDuplicado
+            } catch (error) {
+                console.error('Error fetching dictamen:', error)
+            } finally {
+                this.getNroDictamen()
+                this.getNrohojaDictamen()
+                this.getMunicipiosByDepto(this.dictamenToDuplicate.dictamen.datosGenerales.municipio.CODIGODEPTO)
+                this.asignaVariablesDuplicateShow()
+                loadingService.hide()
+                this.detailDuplicar = true
+            }
+        },
         closeDetail() {
             this.openDetailDialog = false
             this.cleanUpCampos()
+        },
+        closeDetailDuplicar() {
+            this.detailDuplicar = false
+            this.dictamenToDuplicate = {}
+            this.numero_hoja_dictamen = ''
+            this.numero_dictamen = ''
         },
         selectTipo(tipoId, nombreTipo) {
             this.selectedTipo = tipoId
@@ -2271,6 +2337,92 @@ export default {
                 this.updateNroHojaDictamen(this.numero_hoja_dictamen)
                 this.cleanUpCampos()
                 this.closeDetail()
+                this.getDictamenes()
+            }
+        },
+        async DuplicateDictamen() {
+            try {
+                loadingService.show('Creando dictamen...')
+                const newDictamen = {
+                    tipoDictamen: this.selectedTipo,
+                    fechaExpedicion: this.fecha_expedicion,
+                    fechaInspeccion: this.fecha_inspeccion,
+                    codExpediente: this.codigo_expediente,
+                    codVerif: this.codVerif,
+                    nroDictamen: this.numero_dictamen,
+                    nroHojaDictamen: this.numero_hoja_dictamen,
+                    datosGenerales: {
+                        docProp: this.nro_documento,
+                        nombreProp: this.propietario_instalacion,
+                        codDepto: this.departamento,
+                        codMuni: this.municipio,
+                        address: this.direccion,
+                        barrio: this.barrio
+                    },
+                    dictamenParteC: {
+                        tipoConstruccion: this.tipo_construccion,
+                        localizacion: this.localizacion,
+                        tension: this.tension,
+                        capacidad: this.capacidad,
+                        zona: this.zona,
+                        servicio: this.servicio,
+                        uso: this.uso,
+                        tipoconfiguracion: this.tipoConfiguracion,
+                        longitud: this.longitud,
+                        tipoConductores: this.tipoConductores,
+                        materialEstructuras: this.materialEstructuras,
+                        estructurasApoyo: this.nroEstructurasApoyo,
+                        tipoProcesoAsoc: this.tipo_proceso_asoc,
+                        tipoSubestacion: this.tipo_subestacion,
+                        tipoInstalacion: this.tipo_instalacion,
+                        nroTransformadores: this.nro_transformadores,
+                        tipoUsoFinal: this.tipo_uso_final,
+                        subtipoInstalacion: this.subtipoInstalacion,
+                        fases: this.selectedFase,
+                        tipoGeneracion: this.tipoGeneracion,
+                        usoGeneracion: this.usoGeneracion,
+                        fuentesGeneracion: this.fuentesGeneracion,
+                        capacidadInstalada: this.capacidadInstalada,
+                    },
+                    dictamenParteD: {
+                        arrayDisenador: this.arrayDisenador,
+                        arrayConstructor: this.arrayConstructor,
+                        arrayOperador: this.arrayOperador,
+                        arrayInterventor: this.arrayInterventor
+                    },
+                    dictamenParteE: {
+                        evaluaciones: this.evaluaciones
+                    },
+                    dictamenParteF: {
+                        resultado: this.selectedResultadoValue,
+                        observaciones: this.observaciones,
+                        modificaciones: this.modificaciones,
+                        advertenciasEsp: this.advertenciasEsp,
+                        anexos: this.anexos
+                    },
+                    dictamenParteH: {
+                        nombre_dt: this.nombre_dt,
+                        nroDcto_dt: this.nroDcto_dt,
+                        profesion_dt: this.profesion_dt,
+                        certComp_dt: this.certComp_dt,
+                        matrProf_dt: this.matrProf_dt,
+                        nombre_insp: this.nombre_insp,
+                        nroDcto_insp: this.nroDcto_insp,
+                        profesion_insp: this.profesion_insp,
+                        certComp_insp: this.certComp_insp,
+                        matrProf_insp: this.matrProf_insp
+
+                    }
+                }
+                await dictamenService.createDictamen(newDictamen)
+            } catch (error) {
+                console.error('Error creating dictamen:', error)
+            } finally {
+                loadingService.hide()
+                this.updateNroDictamen(this.numero_dictamen)
+                this.updateNroHojaDictamen(this.numero_hoja_dictamen)
+                this.cleanUpCampos()
+                this.closeDetailDuplicar()
                 this.getDictamenes()
             }
         },
@@ -2730,6 +2882,10 @@ export default {
             this.tipo_uso_final = this.dictamenDetail.parteC.tipoUsoFinal
             this.subtipoInstalacion = this.dictamenDetail.parteC.subtipoInstalacion
             this.selectedFase = this.dictamenDetail.parteC.fases
+            this.tipoGeneracion = this.dictamenDetail.parteC.tipoGeneracion
+            this.usoGeneracion = this.dictamenDetail.parteC.usoGeneracion
+            this.fuentesGeneracion = this.dictamenDetail.parteC.fuentesGeneracion
+            this.capacidadInstalada = this.dictamenDetail.parteC.capacidadInstalada
             //Dictamen Parte D
             this.arrayDisenador = [],
             this.arrayConstructor = [],
@@ -2756,6 +2912,70 @@ export default {
             this.profesion_insp = this.dictamenDetail.parteH.profesion_insp
             this.certComp_insp = this.dictamenDetail.parteH.certComp_insp
             this.matrProf_insp = this.dictamenDetail.parteH.matrProf_insp
+        },
+        asignaVariablesDuplicateShow() {
+            this.selectedTipo = this.dictamenToDuplicate.dictamen.tipoDictamen
+            this.fecha_expedicion = moment().format('YYYY-MM-DD')
+            this.fecha_inspeccion = this.dictamenToDuplicate.dictamen.fechaInspeccion
+            this.codigo_expediente = this.dictamenToDuplicate.dictamen.codExpediente
+            this.codVerif = this.dictamenToDuplicate.dictamen.codVerif
+            //Datos Generales
+            this.nro_documento = this.dictamenToDuplicate.dictamen.datosGenerales.docProp
+            this.propietario_instalacion = this.dictamenToDuplicate.dictamen.datosGenerales.nombreProp
+            this.departamento = this.dictamenToDuplicate.dictamen.datosGenerales.municipio.CODIGODEPTO
+            this.municipio = this.dictamenToDuplicate.dictamen.datosGenerales.municipio.CODIGO
+            this.direccion = this.dictamenToDuplicate.dictamen.datosGenerales.address
+            this.barrio = this.dictamenToDuplicate.dictamen.datosGenerales.barrio
+            //Dictamen Parte C
+            this.tipo_construccion = this.dictamenToDuplicate.parteC.tipoConstruccion
+            this.localizacion = this.dictamenToDuplicate.parteC.localizacion
+            this.tension = this.dictamenToDuplicate.parteC.tension
+            this.capacidad = this.dictamenToDuplicate.parteC.capacidad
+            this.zona = this.dictamenToDuplicate.parteC.zona
+            this.servicio = this.dictamenToDuplicate.parteC.servicio
+            this.uso = this.dictamenToDuplicate.parteC.uso
+            this.tipoConfiguracion = this.dictamenToDuplicate.parteC.tipoconfiguracion
+            this.longitud = this.dictamenToDuplicate.parteC.longitud
+            this.tipoConductores = this.dictamenToDuplicate.parteC.tipoConductores
+            this.materialEstructuras = this.dictamenToDuplicate.parteC.materialEstructuras
+            this.nroEstructurasApoyo = this.dictamenToDuplicate.parteC.estructurasApoyo
+            this.tipo_proceso_asoc = this.dictamenToDuplicate.parteC.tipoProcesoAsoc
+            this.tipo_subestacion = this.dictamenToDuplicate.parteC.tipoSubestacion
+            this.tipo_instalacion = this.dictamenToDuplicate.parteC.tipoInstalacion
+            this.nro_transformadores = this.dictamenToDuplicate.parteC.nroTransformadores
+            this.tipo_uso_final = this.dictamenToDuplicate.parteC.tipoUsoFinal
+            this.subtipoInstalacion = this.dictamenToDuplicate.parteC.subtipoInstalacion
+            this.selectedFase = this.dictamenToDuplicate.parteC.fases
+            this.tipoGeneracion = this.dictamenToDuplicate.parteC.tipoGeneracion
+            this.usoGeneracion = this.dictamenToDuplicate.parteC.usoGeneracion
+            this.fuentesGeneracion = this.dictamenToDuplicate.parteC.fuentesGeneracion
+            this.capacidadInstalada = this.dictamenToDuplicate.parteC.capacidadInstalada
+            //Dictamen Parte D
+            this.arrayDisenador = [],
+            this.arrayConstructor = [],
+            this.arrayOperador = [],
+            this.arrayInterventor = [],
+            this.asignarProfesionalesDuplicateShow()
+            //Dictamen Parte E
+            this.asignarEvaluacionesDuplicateShow()
+            //Dictamen Parte F
+            this.selectedResultadoValue = this.dictamenToDuplicate.parteF.resultado
+            this.selectedResultadoId = this.selectedResultadoValue ? 1 : 2
+            this.observaciones = this.dictamenToDuplicate.parteF.observaciones
+            this.modificaciones = this.dictamenToDuplicate.parteF.modificaciones
+            this.advertenciasEsp = this.dictamenToDuplicate.parteF.advertenciasEsp
+            this.anexos = this.dictamenToDuplicate.parteF.anexos
+            //Dictamen Parte H
+            this.nombre_dt = this.dictamenToDuplicate.parteH.nombre_dt
+            this.nroDcto_dt = this.dictamenToDuplicate.parteH.nroDcto_dt
+            this.profesion_dt = this.dictamenToDuplicate.parteH.profesion_dt
+            this.certComp_dt = this.dictamenToDuplicate.parteH.certComp_dt
+            this.matrProf_dt = this.dictamenToDuplicate.parteH.matrProf_dt
+            this.nombre_insp = this.dictamenToDuplicate.parteH.nombre_insp
+            this.nroDcto_insp = this.dictamenToDuplicate.parteH.nroDcto_insp
+            this.profesion_insp = this.dictamenToDuplicate.parteH.profesion_insp
+            this.certComp_insp = this.dictamenToDuplicate.parteH.certComp_insp
+            this.matrProf_insp = this.dictamenToDuplicate.parteH.matrProf_insp
         },
         async openDetailShow(item) {
             let dictamenId = item ? item.id : null
@@ -2791,8 +3011,44 @@ export default {
                 }
             })
         },
+        asignarProfesionalesDuplicateShow() {
+            this.dictamenToDuplicate.parteD.map(prof => {
+                const profData = {
+                    id: prof.id,
+                    tipoProf: prof.tipoProf,
+                    nombre: prof.nombre,
+                    Profesion: prof.Profesion,
+                    matriculaProf: prof.matriculaProf
+                }
+                if (prof.tipoProf === 'Diseñador') {
+                    this.arrayDisenador.push(profData)
+                } else if (prof.tipoProf === 'Constructor') {
+                    this.arrayConstructor.push(profData)
+                } else if (prof.tipoProf === 'Operador') {
+                    this.arrayOperador.push(profData)
+                } else if (prof.tipoProf === 'Interventor') {
+                    this.arrayInterventor.push(profData)
+                }
+            })
+        },
         async asignarEvaluacionesDetailShow() {
             const evaluacionesConParteE = this.dictamenDetail.parteE.map(ev => {
+                const evalData = {
+                    id: ev.evaluacion.id,
+                    grupo: ev.evaluacion.grupo,
+                    nombre: ev.evaluacion.nombre,
+                    aplica: ev.aplica,
+                    parametroMedido: ev.parametroMedido,
+                    parametroReferencia: ev.parametroRef,
+                    cumple: ev.cumple
+                }
+                return evalData;
+            });
+
+            this.evaluaciones = evaluacionesConParteE;
+        },
+        async asignarEvaluacionesDuplicateShow() {
+            const evaluacionesConParteE = this.dictamenToDuplicate.parteE.map(ev => {
                 const evalData = {
                     id: ev.evaluacion.id,
                     grupo: ev.evaluacion.grupo,
