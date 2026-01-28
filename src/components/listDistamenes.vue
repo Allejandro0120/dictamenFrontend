@@ -656,7 +656,6 @@
                                                     Tensión [kV]
                                                 </div>
                                                 <v-text-field
-                                                    type="number"
                                                     v-model="tension"
                                                     outlined
                                                     dense
@@ -668,7 +667,6 @@
                                                     Capacidad [kVA]
                                                 </div>
                                                 <v-text-field
-                                                    type="number"
                                                     v-model="capacidad"
                                                     outlined
                                                     dense
@@ -941,7 +939,6 @@
                                                     Tensión [kV]
                                                 </div>
                                                 <v-text-field
-                                                    type="number"
                                                     v-model="tension"
                                                     outlined
                                                     dense
@@ -953,7 +950,6 @@
                                                     Capacidad [kVA]
                                                 </div>
                                                 <v-text-field
-                                                    type="number"
                                                     v-model="capacidad"
                                                     outlined
                                                     dense
@@ -1010,7 +1006,6 @@
                                                     Tensión [kV]
                                                 </div>
                                                 <v-text-field
-                                                    type="number"
                                                     v-model="tension"
                                                     outlined
                                                     dense
@@ -1022,7 +1017,6 @@
                                                     Capacidad [kVA]
                                                 </div>
                                                 <v-text-field
-                                                    type="number"
                                                     v-model="capacidad"
                                                     outlined
                                                     dense
@@ -1484,7 +1478,7 @@
                                                         outlined
                                                         dense
                                                         rows="6"
-                                                        maxlength="255"
+                                                        maxlength="1200"
                                                         hide-details
                                                     />
                                                 </v-col>
