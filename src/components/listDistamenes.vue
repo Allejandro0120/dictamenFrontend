@@ -279,7 +279,7 @@
                                                         >
                                                             mdi-file-document-outline
                                                         </v-icon>
-                                                        <span>Anexo {{ nroAnexo }} - Resolución 40117 de 2024</span>
+                                                        <span>Anexo {{ nroAnexo }} - Resolución 40117 del 2 de abril de 2024</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -803,6 +803,7 @@
                                                     placeholder="Seleccione un uso"
                                                     outlined
                                                     dense
+                                                    multiple
                                                     hide-details
                                                 />
                                             </v-col>
@@ -862,7 +863,6 @@
                                                     Nro de estructuras de apoyo
                                                 </div>
                                                 <v-text-field
-                                                    type="number"
                                                     v-model="nroEstructurasApoyo"
                                                     outlined
                                                     dense
@@ -971,6 +971,7 @@
                                                     outlined
                                                     dense
                                                     hide-details
+                                                    multiple
                                                 />
                                             </v-col>
                                         </v-row>
